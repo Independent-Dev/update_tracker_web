@@ -1,33 +1,43 @@
-from flask import current_app, render_template
+from flask import current_app, render_template, url_for
 from flask_mail import Message
+from flask_login import current_user
+from itsdangerous import URLSafeTimedSerializer
+
+from hashlib import sha1
+
 
 from monolithic import login_manager, mail
 from monolithic.models.users import User
+from monolithic.tasks import mail
 
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-def send_email_celery(subject, recipient, template, **context):
-    msg = dict(subject=subject,
-               sender=current_app.config['SECURITY_EMAIL_SENDER'],
-               recipients=[recipient])
-    msg['body'] = render_template('%s.txt' % template, **context)
-    msg['html'] = render_template('%s.html' % template, **context)
+def send_auth_email():
+    confirmation_link = generate_confirmation_link(
+        current_user, url_txt='email_auth_completed_page'
+    )
 
-    is_mail_send_success = True  # 메일 발송 성공 여부(Celery 미사용시에만 사용)
+    context = dict(email_addr=current_user.user_email, confirmation_link=confirmation_link)
 
-    flask_msg = Message(**msg)
-    mail.send(flask_msg)
+    mail.send_email_celery.delay(
+        subject='가입 이메일 인증',
+        recipient=current_user.user_email,
+        template='email/send_auth_email',
+        **context
+    )
 
-    try:
-        current_app.logger.info("메일 수신자: '{}' 에게 제목: '{}' 의 메일 발송 시도".format(recipient, subject))
+def generate_confirmation_link(user, url_txt):
+    token = generate_confirmation_token(user)
+    return url_for(url_txt, token=token, email=user.user_email, _external=True)
 
-        flask_msg = Message(**msg)
-        mail.send(flask_msg)
-    except Exception as e:
-        current_app.logger.error(e)
-    else:
-        current_app.logger.info("메일 수신자: '{}' 에게 제목: '{}' 의 메일 발송 성공".format(recipient, subject))
+def generate_confirmation_token(user):
+    """Generates a unique confirmation token for the specified user.
 
-    return is_mail_send_success
+    :param user: The user to work with
+    """
+    data = [str(user.id), sha1(user.user_email.encode('utf-8')).hexdigest()]
+    from monolithic import create_app
+    secret_key = current_app.config.get('SECRET_KEY')
+    return URLSafeTimedSerializer(secret_key=secret_key, salt=None).dumps(data)
