@@ -16,7 +16,7 @@ def load_user(user_id):
 
 def send_auth_email():
     confirmation_link = generate_confirmation_link(
-        current_user, url_txt='email_auth_completed_page'
+        current_user, url_txt='auth.email_auth_completed_page'
     )
 
     context = dict(email_addr=current_user.user_email, confirmation_link=confirmation_link)
@@ -38,6 +38,5 @@ def generate_confirmation_token(user):
     :param user: The user to work with
     """
     data = [str(user.id), sha1(user.user_email.encode('utf-8')).hexdigest()]
-    from monolithic import create_app
     secret_key = current_app.config.get('SECRET_KEY')
     return URLSafeTimedSerializer(secret_key=secret_key, salt=None).dumps(data)

@@ -7,7 +7,6 @@ def send_email_celery(subject, recipient, template, **context):
     msg = dict(subject=subject,
                sender=current_app.config['SECURITY_EMAIL_SENDER'],
                recipients=[recipient])
-    msg['body'] = render_template('%s.txt' % template, **context)
     msg['html'] = render_template('%s.html' % template, **context)
 
     try:

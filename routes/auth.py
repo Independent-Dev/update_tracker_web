@@ -19,7 +19,7 @@ bp = Blueprint(NAME, __name__, url_prefix=f'/{NAME}')
 @bp.route("/login/", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('mypage'))
+        return redirect(url_for('user.mypage'))
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(user_email=form.user_email.data).first()
@@ -28,7 +28,7 @@ def login():
                 flash('password is wrong')
             else:
                 login_user(user)
-                return redirect(url_for('mypage'))
+                return redirect(url_for('user.mypage'))
         else:
             flash('account not exists')
             return redirect(request.path)
@@ -67,3 +67,7 @@ def register():
         return redirect(url_for('index'))
 
     return render_template(f'{NAME}/register.html', form=form)
+
+@bp.route("/email_auth_completed_page/")
+def email_auth_completed_page():
+    return render_template("email_auth_completed_page.html")

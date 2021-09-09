@@ -1,0 +1,45 @@
+<html>
+    <head>
+        <title>Package Report</title>
+        <meta charset="UTF-8">
+    </head>
+    <body>
+        {% for l in level %}
+            {% if result_list[l.value - 1] %}
+                <h1>{{ l.name }} 업데이트가 이미 진행된 패키지</h1>
+                <table width="680" cellpadding="0" cellspacing="0" border="1" style="border: 1px solid #d9d9e3;text-align: center;">
+                    <tr>{{ field }}
+                        <td>package_name</td>
+                        {% for field in field_list %}
+                        <td>{{ field }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% for package_name, package_data_tuple in result_list[l.value - 1].items() %}
+                    <tr>
+                        <td>{{ package_name }}</td>
+                        {% for package_data in package_data_tuple %}
+                        <td>{{ package_data }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </table>
+            {% endif %}
+        {% endfor %}
+        {% if error_dict %}
+            <h1>Error</h1>
+            <table width="680" cellpadding="0" cellspacing="0" border="1" style="border: 1px solid #d9d9e3; text-align: center;">
+                <tr>
+                    <td>package_name</td>
+                    <td>error_reason</td>
+                </tr>
+                {% for package_name, error_reason in error_dict.items()%}
+                    <tr>
+                        <td>{{ package_name }}</td>
+                        <td>{{ error_reason }}</td>
+                    </tr>
+                {% endfor %}
+            </table>    
+            
+        {% endif %}
+    </body>
+</html>

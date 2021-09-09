@@ -1,4 +1,5 @@
 from flask import Flask, render_template, url_for
+from kombu.log import LOG_LEVELS
 from werkzeug.utils import redirect
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -30,28 +31,17 @@ def create_app(config=None):
     # 아래 구문을 주석처리하면 Exception: Missing user_loader or request_loader. 에러 발생
     # load_user를 정의하였더라도 이것이 메모리에 올라와있지 않으면 이와 같은 에러 발생함. 
     from monolithic.utils.user import load_user
-    
-    @app.route("/")
-    def index():
-        return render_template('index.html')
-
-    @login_required
-    @app.route("/mypage/")
-    def mypage():
-        if current_user.is_authenticated:
-            return f"<h1>Welcome {current_user.user_email}</h1>"
-        return redirect(url_for('auth.login'))
-    
-    @app.route("/email_auth_completed_page/")
-    def email_auth_completed_page():
-        return render_template("email_auth_completed_page.html")
-
-    from monolithic.routes import auth, data
+    from monolithic.routes import auth, data, user
 
     app.register_blueprint(auth.bp)
     app.register_blueprint(data.bp)
+    app.register_blueprint(user.bp)
 
     celery.conf.update(app.config)
+
+    @app.route("/")
+    def index():
+        return render_template('index.html')
     
     return app
 
