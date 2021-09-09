@@ -1,8 +1,4 @@
-import os
-#from app import create_app, celery
-from monolithic import create_app
+from monolithic import celery, create_app, init_celery
 
 app = create_app()
-app.app_context().push()
-
-from monolithic import celery
+celery = init_celery(app)
