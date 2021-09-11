@@ -19,6 +19,7 @@ class UpdateTracker:
     def __init__(self, package_info, user_email) -> None:
         self.package_info = package_info
         self.error = dict()
+        self.cache_miss_packages = dict()
         self.user_email=user_email
         self.redis = redis.StrictRedis(host='localhost', port=6379, db=0)
         self.SEARCH_URL = "https://pypi.python.org/pypi/{}/json"
@@ -41,8 +42,12 @@ class UpdateTracker:
             except Exception as e:
                 self.error[package_name] = str(e)
 
+        if self.cache_miss_packages:
+            self.redis.mset(self.cache_miss_packages)
+
         self.package_info = updated_package_info
-    
+
+
     def fetch_data(self, package_name, package_data):
         fetched_data = self.redis.get(package_name)
 
@@ -61,7 +66,7 @@ class UpdateTracker:
                 upload_time = result_json["releases"][updated_version][0]["upload_time"]
             )
 
-            self.redis.set(package_name, json.dumps(fetched_data, ensure_ascii=False).encode('utf-8'))
+            self.cache_miss_packages[package_name] = json.dumps(fetched_data, ensure_ascii=False).encode('utf-8')
 
         else:
             current_app.logger.info(f"{package_name} already in redis")
