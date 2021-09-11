@@ -1,4 +1,5 @@
-import requests, redis, json, logging
+import requests, redis, json
+from flask import current_app
 from enum import IntEnum
 from collections import namedtuple
 from monolithic.tasks.mail import send_email_celery
@@ -31,8 +32,8 @@ class UpdateTracker:
 
     def get_updated_package_info(self):
         updated_package_info = dict()
-        # TODO 여기서 idx 삭제 필요
-        for idx, (package_name, package_data) in enumerate(self.package_info.items(), start=1):    
+        
+        for package_name, package_data in self.package_info.items():    
             try:
                 updated_package_info[package_name] = self.fetch_data(package_name, package_data)
             except IndexError:
@@ -44,21 +45,26 @@ class UpdateTracker:
     
     def fetch_data(self, package_name, package_data):
         fetched_data = self.redis.get(package_name)
+
         if not fetched_data:
-            logging.critical(f"{package_name} not in redis")
+            current_app.logger.info(f"{package_name} not in redis")
             result = requests.get(self.SEARCH_URL.format(package_name))
+
             if result.status_code != 200:
-                raise ValueError('Package not found in PyPI')  # 에러의 종류 좀 더 생각해보기
+                raise ValueError('Package not found in PyPI')  # TODO 에러의 종류 좀 더 생각해보기
+
             result_json = result.json()
             updated_version = result_json["info"]["version"]
+
             fetched_data = dict(
                 updated_version = updated_version,
                 upload_time = result_json["releases"][updated_version][0]["upload_time"]
             )
+
             self.redis.set(package_name, json.dumps(fetched_data, ensure_ascii=False).encode('utf-8'))
 
         else:
-            logging.critical(f"{package_name} already in redis")
+            current_app.logger.info(f"{package_name} already in redis")
             fetched_data = json.loads(fetched_data.decode("utf-8"))
             
         return PackageData(
@@ -85,7 +91,6 @@ class UpdateTracker:
             error_dict=self.error
         )
         
-
         send_email_celery(
             subject='패키지 리포트',
             recipient=self.user_email,
