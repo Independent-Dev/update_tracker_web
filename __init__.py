@@ -1,5 +1,4 @@
 from flask import Flask, render_template, url_for
-from kombu.log import LOG_LEVELS
 from werkzeug.utils import redirect
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -23,7 +22,11 @@ def create_app(config=None):
 
     """ === Database Init === """
     db.init_app(app)
-    migrate.init_app(app, db, render_as_batch=True)
+
+    if app.config['SQLALCHEMY_DATABASE_URI'].startswith('sqlite'):
+        migrate.init_app(app, db, render_as_batch=True)
+    else:
+        migrate.init_app(app, db)
     login_manager.init_app(app)
     mail.init_app(app)
 

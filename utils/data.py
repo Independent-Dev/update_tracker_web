@@ -1,4 +1,4 @@
-import requests
+import requests, redis, json, logging
 from enum import IntEnum
 from collections import namedtuple
 from monolithic.tasks.mail import send_email_celery
@@ -19,49 +19,52 @@ class UpdateTracker:
         self.package_info = package_info
         self.error = dict()
         self.user_email=user_email
+        self.redis = redis.StrictRedis(host='localhost', port=6379, db=0)
+        self.SEARCH_URL = "https://pypi.python.org/pypi/{}/json"
     
+
     def report_package_info(self):
         self.get_updated_package_info()
         self.compare_current_and_updated_package_info()
-
-        context = dict(
-            level=Level, 
-            result_list=self.result, 
-            field_list=PackageData._fields, 
-            error_dict=self.error)
-
-        send_email_celery(
-            subject='패키지 리포트',
-            recipient=self.user_email,
-            template='email/package_report_email',
-            **context
-        )
+        self.make_report()
 
 
     def get_updated_package_info(self):
-        SEARCH_URL = "https://pypi.python.org/pypi/{}/json"
         updated_package_info = dict()
-
-        # 여기서 idx
-        for idx, (package_name, package_data) in enumerate(self.package_info.items(), start=1):
-            result = requests.get(SEARCH_URL.format(package_name))
-            
+        # TODO 여기서 idx 삭제 필요
+        for idx, (package_name, package_data) in enumerate(self.package_info.items(), start=1):    
             try:
-                if result.status_code != 200:
-                    raise ValueError('Package not found in PyPI')  # 에러의 종류 좀 더 생각해보기
-                result_json = result.json()
-                updated_version = result_json["info"]["version"]
-                updated_package_info[package_name] = PackageData(
-                    **package_data,
-                    updated_version = updated_version,
-                    upload_time = result_json["releases"][updated_version][0]["upload_time"].replace("T", " ")
-                )
+                updated_package_info[package_name] = self.fetch_data(package_name, package_data)
             except IndexError:
-                self.error[package_name] = f"Unknown info format. Check on {SEARCH_URL.format(package_name)}"
+                self.error[package_name] = f"Unknown info format. Check on {self.SEARCH_URL.format(package_name)}"
             except Exception as e:
                 self.error[package_name] = str(e)
 
         self.package_info = updated_package_info
+    
+    def fetch_data(self, package_name, package_data):
+        fetched_data = self.redis.get(package_name)
+        if not fetched_data:
+            logging.critical(f"{package_name} not in redis")
+            result = requests.get(self.SEARCH_URL.format(package_name))
+            if result.status_code != 200:
+                raise ValueError('Package not found in PyPI')  # 에러의 종류 좀 더 생각해보기
+            result_json = result.json()
+            updated_version = result_json["info"]["version"]
+            fetched_data = dict(
+                updated_version = updated_version,
+                upload_time = result_json["releases"][updated_version][0]["upload_time"]
+            )
+            self.redis.set(package_name, json.dumps(fetched_data, ensure_ascii=False).encode('utf-8'))
+
+        else:
+            logging.critical(f"{package_name} already in redis")
+            fetched_data = json.loads(fetched_data.decode("utf-8"))
+            
+        return PackageData(
+            **package_data,
+            **fetched_data
+        )
 
     def compare_current_and_updated_package_info(self):
         self.result = [{} for _ in range(len(Level))]
@@ -73,4 +76,20 @@ class UpdateTracker:
                     if current_package_version[i] != updated_package_version[i]:
                         self.result[i][package_name] = package_data
                         break
+    
+    def make_report(self):
+        context = dict(
+            level=Level, 
+            result_list=self.result, 
+            field_list=PackageData._fields, 
+            error_dict=self.error
+        )
+        
+
+        send_email_celery(
+            subject='패키지 리포트',
+            recipient=self.user_email,
+            template='email/package_report_email',
+            **context
+        )
  
