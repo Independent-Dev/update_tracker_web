@@ -21,7 +21,8 @@ class UpdateTracker:
         self.error = dict()
         self.cache_miss_packages = dict()
         self.user_email=user_email
-        self.redis = redis.StrictRedis(host='localhost', port=6379, db=0)
+        # self.redis = redis.StrictRedis(host='localhost', port=6379, db=0)
+        self.redis = redis.StrictRedis(host='redis-server', port=6379, db=0)  # for docker compose
         self.SEARCH_URL = "https://pypi.python.org/pypi/{}/json"
     
 

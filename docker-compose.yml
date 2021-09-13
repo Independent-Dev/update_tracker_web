@@ -1,0 +1,55 @@
+# 실제 배포 성공한 docker-compose.yml 상위 폴더로 옮긴 후에 실행해야 함. 
+version: "3.2"
+
+services:
+  server:
+    # image: juj08217/web_server:latest 
+    build:
+      context: monolithic/.
+      dockerfile: Dockerfile
+    depends_on:
+      - db-server
+      - redis-server
+    ports:
+      - '5000:5000'
+  db-server:
+    image: mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=monolithic
+    ports:
+      - '3306:3306'
+
+  redis-server:
+    image: redis
+    ports: 
+      - '6379:6379'
+
+# 참고한 docker compose 예시
+
+# version: '3.8'
+# services:
+#   backend:
+#     build:
+#       context: .
+#       dockerfile: Dockerfile
+#     command: 'flask run'
+#     ports:
+#       - 8001:5000
+#     volumes:
+#       - .:/monolithic
+#     depends_on:
+#       - db
+
+#   db:
+#     image: mysql:5.7.22
+#     restart: always
+#     environment:
+#       MYSQL_DATABASE: main
+#       MYSQL_USER: root
+#       MYSQL_PASSWORD: root
+#       MYSQL_ROOT_PASSWORD: root
+#     volumes:
+#       - .dbdata:/var/lib/mysql
+#     ports:
+#       - 33067:3306

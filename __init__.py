@@ -12,7 +12,8 @@ migrate = Migrate()
 login_manager = LoginManager()
 mail = Mail()
 
-celery = Celery(__name__, broker="redis://localhost:6379")
+# celery = Celery(__name__, broker="redis://localhost:6379")
+celery = Celery(__name__, broker="redis://redis-server:6379")  # for docker compose
 
 def create_app(config=None):
     app = Flask(__name__)
@@ -50,11 +51,11 @@ def create_app(config=None):
 
 
 def init_celery(app):
-        class ContextTask(celery.Task):
-            """Make celery tasks work with Flask app context"""
-            def __call__(self, *args, **kwargs):
-                with app.app_context():
-                    return self.run(*args, **kwargs)
+    class ContextTask(celery.Task):
+        """Make celery tasks work with Flask app context"""
+        def __call__(self, *args, **kwargs):
+            with app.app_context():
+                return self.run(*args, **kwargs)
 
-        celery.Task = ContextTask
-        return celery
+    celery.Task = ContextTask
+    return celery
