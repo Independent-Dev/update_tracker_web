@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+{% from "macro.html" import render_text_field %}
+
+{% block title -%}
+    Main
+{%- endblock %}
+
+{% block card_title %}Main{% endblock %}
+
+{% block body %}
+<form method=post enctype=multipart/form-data action="{{ url_for('data.file') }}">
+    <div class="mdl-card__supporting-text">
+        {{ form.csrf_token }}
+        {% if not current_user.is_authenticated %}
+            {{ render_text_field(form.user_email, minlength=4, maxlength=20, autocomplete='off', required=true, float=right) | indent(24)}}
+        {% endif %}
+        <div style="width:100%;" class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        {{ form.file(class='mdl-textfield__input') }}
+        </div>
+    </div>
+    <div class="mdl-card__actions mdl-card--border">
+        <div class="mdl-grid">
+            <input class="mdl-cell mdl-cell--12-col mdl-button mdl-button--raised mdl-button--colored mdl-js-button mdl-js-ripple-effect mdl-color-text--white" type=submit value="upload" style="background-color: FFAB40;">
+        </div>
+    </div>
+</form>
+{% endblock %}

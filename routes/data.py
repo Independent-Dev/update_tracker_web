@@ -11,8 +11,8 @@ bp = Blueprint(NAME, __name__, url_prefix=f'/{NAME}')
 def file():
     form = FileUploadForm()
     if request.method == 'GET':
-        print(f"this is {request.method} method")
-        return render_template(f'{NAME}/file_upload.html', form=form)
+        return render_template('index.html', form=form)
+
     else:        
         if form.validate_on_submit():
             try:
@@ -24,9 +24,8 @@ def file():
                     package_info[package_name] = {"current_version": package_version}
             except Exception as e:
                 print(e)
-            else:
-                print("analyze_and_report_package_data!!!!")
 
+            else:
                 analyze_and_report_package_data.delay(package_info, form.user_email.data or current_user.user_email)
-        print("post is working ", form.errors)
+
         return redirect(request.path)

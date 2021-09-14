@@ -19,7 +19,7 @@ bp = Blueprint(NAME, __name__, url_prefix=f'/{NAME}')
 @bp.route("/login/", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('user.mypage'))
+        return redirect(url_for('data.file'))
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(user_email=form.user_email.data).first()
@@ -28,7 +28,7 @@ def login():
                 flash('password is wrong')
             else:
                 login_user(user)
-                return redirect(url_for('user.mypage'))
+                return redirect(url_for('data.file'))
         else:
             flash('account not exists')
             return redirect(request.path)
@@ -59,12 +59,12 @@ def register():
             login_user(user)
             send_auth_email()
             # login_user(user)
-        return redirect(url_for('index'))
+        return redirect(url_for('data.file'))
     else:
         flash_form_errors(form)
     
     if current_user.is_authenticated:
-        return redirect(url_for('index'))
+        return redirect(url_for('data.file'))
 
     return render_template(f'{NAME}/register.html', form=form)
 

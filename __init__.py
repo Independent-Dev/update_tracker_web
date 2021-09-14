@@ -12,8 +12,8 @@ migrate = Migrate()
 login_manager = LoginManager()
 mail = Mail()
 
-# celery = Celery(__name__, broker="redis://localhost:6379")
-celery = Celery(__name__, broker="redis://redis-server:6379")  # for docker compose
+celery = Celery(__name__, broker="redis://localhost:6379")
+# celery = Celery(__name__, broker="redis://redis-server:6379")  # for docker compose
 
 def create_app(config=None):
     app = Flask(__name__)
@@ -35,17 +35,16 @@ def create_app(config=None):
     # 아래 구문을 주석처리하면 Exception: Missing user_loader or request_loader. 에러 발생
     # load_user를 정의하였더라도 이것이 메모리에 올라와있지 않으면 이와 같은 에러 발생함. 
     from monolithic.utils.user import load_user
-    from monolithic.routes import auth, data, user
+    from monolithic.routes import auth, data
 
     app.register_blueprint(auth.bp)
     app.register_blueprint(data.bp)
-    app.register_blueprint(user.bp)
 
     celery.conf.update(app.config)
 
     @app.route("/")
     def index():
-        return render_template('index.html')
+        return redirect(url_for("data.file"))
     
     return app
 
