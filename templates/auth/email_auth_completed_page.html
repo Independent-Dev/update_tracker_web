@@ -1,0 +1,31 @@
+{% extends "/layout.html" %}
+{% from "macro.html" import render_text_field %}
+
+{% block title -%}
+    이메일 인증 결과
+{%- endblock %}
+
+{% block link %}
+{% endblock %}
+
+{% block card_title %}이메일 인증{% endblock %}
+
+{% block body -%}
+        <div class="mdl-card__supporting-text">
+            {% if current_user.is_authenticated %}
+                {{ current_user.user_email }}님 이메일 인증이 완료되었습니다!
+            {% else %}
+                인증 메일 링크를 확인해주세요!
+            {% endif %}
+        </div>
+
+        <div class="mdl-card__actions mdl-card--border">
+            <div class="mdl-grid">
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('data.file') }}" class="mdl-cell mdl-cell--12-col mdl-button mdl-button--raised mdl-button--colored mdl-js-button mdl-js-ripple-effect mdl-color-text--white" style="background-color: FFAB40;">메인 페이지로</a>
+                {% else %}
+                    <a href="{{ url_for('auth.email_send', user_email=user_email) }}" class="mdl-cell mdl-cell--12-col mdl-button mdl-button--raised mdl-button--colored mdl-js-button mdl-js-ripple-effect mdl-color-text--white" style="background-color: FFAB40;">인증 메일 재발송</a>
+                {% endif %}
+            </div>
+        </div>
+{%- endblock %}
