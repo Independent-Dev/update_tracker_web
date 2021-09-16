@@ -46,6 +46,10 @@ def create_app(config=None):
     def index():
         return redirect(url_for("data.file"))
     
+    @app.route("/intro/")
+    def intro():
+        return render_template("intro.html")
+    
     return app
 
 

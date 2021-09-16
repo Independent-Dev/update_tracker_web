@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% from "macro.html" import render_text_field %}
+
+{% block title -%}
+    사이트 소개
+{%- endblock %}
+
+{% block card_title %}사이트 소개{% endblock %}
+
+{% block body %}
+    <div class="mdl-card__supporting-text">
+        <ul>
+            <li>
+                <a href="{{ url_for('static', filename='sample_requirements.txt') }}" download>파일 예시</a>
+            </li>
+        </ul>
+    </div>
+    <div class="mdl-card__actions mdl-card--border">
+
+    </div>
+{% endblock %}
