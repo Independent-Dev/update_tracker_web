@@ -2,12 +2,8 @@ from flask import current_app, render_template
 from flask_mail import Message
 from monolithic import mail, celery
 from monolithic.tasks.mail import send_email_celery
-from monolithic.utils.data import UpdateTracker
+from monolithic.utils.data import UpdateTracker, Redis
 
-# @celery.on_after_configure.connect
-# def setup_periodic_tasks(sender, **kwargs):
-#     # Calls test('world') every 30 seconds
-#     sender.add_periodic_task(30.0, print_hello.s('world'), expires=10)
 
 @celery.task
 def analyze_and_report_package_data(package_info, user_email):
@@ -15,5 +11,24 @@ def analyze_and_report_package_data(package_info, user_email):
     update_tracker.report_package_info()
 
 @celery.task
-def print_hello():
-    current_app.logger.info("hello")
+def update_redis_cache():
+    current_app.logger.info("update_redis_cache 메소드 시작")
+    redis = Redis()
+
+    current_app.logger.info("fetch_updated_package_data 시작")
+
+    for package_name in redis.get_keys():
+        try:
+            redis.fetch_updated_package_data(package_name)
+        except Exception as e:
+            current_app.logger.debug(f"error: {e}")
+
+    current_app.logger.info("fetch_updated_package_data 완료")
+    
+    if redis.package_data:
+        current_app.logger.info("package data update 시작")
+        current_app.logger.info(f"업데이트 필요 패키지: {redis.package_data.keys()}")
+        redis.conn.mset(redis.package_data)
+    
+    current_app.logger.info("update_redis_cache 메소드 완료")
+    

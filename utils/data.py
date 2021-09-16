@@ -22,8 +22,6 @@ class UpdateTracker:
         self.cache_miss_packages = dict()
         self.user_email=user_email
         self.redis = redis.StrictRedis(host='localhost', port=6379, db=0)
-        # self.redis = redis.StrictRedis(host='redis-server', port=6379, db=0)  # for docker compose
-        self.SEARCH_URL = "https://pypi.python.org/pypi/{}/json"
     
 
     def report_package_info(self):
@@ -39,7 +37,7 @@ class UpdateTracker:
             try:
                 updated_package_info[package_name] = self.fetch_data(package_name, package_data)
             except IndexError:
-                self.error[package_name] = f"Unknown info format. Check on {self.SEARCH_URL.format(package_name)}"
+                self.error[package_name] = f"Unknown info format. Check on {current_app.config['PYPI_SEARCH_URL_FORMAT'].format(package_name)}"
             except Exception as e:
                 self.error[package_name] = str(e)
 
@@ -54,7 +52,7 @@ class UpdateTracker:
 
         if not fetched_data:
             current_app.logger.info(f"{package_name} not in redis")
-            result = requests.get(self.SEARCH_URL.format(package_name))
+            result = requests.get(current_app.config['PYPI_SEARCH_URL_FORMAT'].format(package_name))
 
             if result.status_code != 200:
                 raise ValueError('Package not found in PyPI')  # TODO 에러의 종류 좀 더 생각해보기
@@ -103,4 +101,28 @@ class UpdateTracker:
             template='email/package_report_email',
             **context
         )
- 
+
+
+class Redis:
+    def __init__(self) -> None:
+        # redis.StrictRedis(host='redis-server', port=6379, db=0)  # for docker compose
+        self.conn = redis.StrictRedis(host='localhost', port=6379, db=0)
+        self.package_data = dict()
+    
+    def get_keys(self):
+        package_name_list = self.conn.keys("*")
+        return [package_name.decode() for package_name in package_name_list]
+    
+    def fetch_updated_package_data(self, package_name):
+        result = requests.get(current_app.config['PYPI_SEARCH_URL_FORMAT'].format(package_name))
+
+        if result.status_code == 200:
+            result_json = result.json()
+            updated_version = result_json["info"]["version"]
+
+            fetched_data = dict(
+                updated_version = updated_version,
+                upload_time = result_json["releases"][updated_version][0]["upload_time"]
+            )
+
+            self.package_data[package_name] = json.dumps(fetched_data, ensure_ascii=False).encode('utf-8')
