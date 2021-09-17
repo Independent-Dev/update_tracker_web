@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask, render_template, url_for
 from werkzeug.utils import redirect
 from flask_sqlalchemy import SQLAlchemy
@@ -12,14 +14,20 @@ migrate = Migrate()
 login_manager = LoginManager()
 mail = Mail()
 
-celery = Celery(__name__, broker="redis://localhost:6379")
-# celery = Celery(__name__, broker="redis://redis-server:6379")  # for docker compose
+celery = Celery(__name__)
 
 def create_app(config=None):
     app = Flask(__name__)
     
-    from .configs import Config
-    app.config.from_object(Config())
+    from .configs import ProductionConfig, TestConfig
+    
+    if os.environ.get('FLASK_ENV', '') == "development":
+        config = TestConfig()
+    else:
+        config = ProductionConfig()
+
+    app.config.from_object(config)
+
 
     """ === Database Init === """
     db.init_app(app)

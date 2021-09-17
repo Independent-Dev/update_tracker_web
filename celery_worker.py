@@ -10,3 +10,4 @@ celery.conf.beat_schedule = {
         'schedule': crontab(hour='*/6')  # 6시간마다 캐시 갱신 
     },
 }
+celery.conf.broker_url = app.config["CELERY_BROKER_URL"]

@@ -105,8 +105,7 @@ class UpdateTracker:
 
 class Redis:
     def __init__(self) -> None:
-        # redis.StrictRedis(host='redis-server', port=6379, db=0)  # for docker compose
-        self.conn = redis.StrictRedis(host='localhost', port=6379, db=0)
+        self.conn = redis.StrictRedis(host=current_app.config["REDIS_HOST"], port=6379, db=0)
         self.package_data = dict()
     
     def get_keys(self):
