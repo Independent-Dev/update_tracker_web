@@ -49,6 +49,7 @@ def create_app(config=None):
     app.register_blueprint(data.bp)
 
     celery.conf.update(app.config)
+    celery.conf.broker_url = app.config["CELERY_BROKER_URL"]
 
     @app.route("/")
     def index():
