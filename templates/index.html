@@ -5,14 +5,55 @@
     Main
 {%- endblock %}
 
+{% block script %}
+<script>
+    $(document).ready(function() {
+        $("#upload_form").submit(function(event){
+            event.preventDefault();
+            
+            data = new FormData();
+            data.append("csrf_token", $('input[name="csrf_token"]').val());
+            data.append("user_email", $('input[name="user_email"]').val());
+            data.append("file", $("input[name=file]")[0].files[0]);
+        
+            $.ajax({
+            url: "{{ url_for('data.file') }}",
+            type: 'POST',
+            data: data,
+            enctype: 'multipart/form-data',
+            contentType: false,
+            processData: false,
+            success: function(r){
+                r = $.parseJSON(r)
+                alert(r.message);
+                location.reload();
+            },
+            error: function(response){
+                response = $.parseJSON(response.responseText)
+
+                error_message_array = Object.values($.parseJSON(response.message))
+
+                $.each(error_message_array, function(idx, items){
+                    alert(items);
+                })
+            }
+            })
+        });
+    });
+</script>
+
+{% endblock %}
+
 {% block card_title %}Main{% endblock %}
 
 {% block body %}
-<form method=post enctype=multipart/form-data action="{{ url_for('data.file') }}">
+<form method="post" id="upload_form" enctype="multipart/form-data">
     <div class="mdl-card__supporting-text">
         {{ form.csrf_token }}
         {% if not current_user.is_authenticated %}
-            {{ render_text_field(form.user_email, minlength=4, maxlength=20, autocomplete='off', required=true, float=right) | indent(24)}}
+            {{ render_text_field(form.user_email, minlength=4, maxlength=20, autocomplete='off', required=true, type='email') | indent(24)}}
+        {% else %}
+            {{ form.user_email(class='mdl-textfield__input', minlength=4, maxlength=20, autocomplete='off', required=true, type='hidden', value=current_user.user_email) }}
         {% endif %}
         <div style="width:100%;" class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
         {{ form.file(class='mdl-textfield__input') }}
@@ -20,8 +61,7 @@
     </div>
     <div class="mdl-card__actions mdl-card--border">
         <div class="mdl-grid">
-            <a href="{{ url_for('static', filename='requirements.txt') }}" download>파일 예시</a>
-            <input class="mdl-cell mdl-cell--12-col mdl-button mdl-button--raised mdl-button--colored mdl-js-button mdl-js-ripple-effect mdl-color-text--white" type=submit value="upload" style="background-color: FFAB40;">
+            <input type="submit" value="upload" class="mdl-cell mdl-cell--12-col mdl-button mdl-button--raised mdl-button--colored mdl-js-button mdl-js-ripple-effect mdl-color-text--white" style="background-color: FFAB40;"></input>
         </div>
     </div>
 </form>

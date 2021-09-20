@@ -1,0 +1,73 @@
+:root {
+  --global-black-color: #000;
+  --global-dark-grey-color: #767676;
+  --global-grey-color: #e0e0e0;
+  --global-light-grey-color: #f1f3f4;
+  --global-white-color: #fff;
+  --global-sub-color: #fbbc04;
+  --global-active-color: #feefc3;
+}
+
+/*======== GLOBAL =========*/
+* {
+  font-family: "Roboto";
+}
+
+a {
+  text-decoration: none;
+}
+
+ul {
+  padding: 0;
+  margin: 0;
+}
+
+/*======== MDL OVERWRITE =========*/
+.mdl-dialog {
+  padding: 0;
+  border-radius: 10px;
+}
+
+.mdl-card-wide {
+  width: 100%;
+}
+
+.mdl-card__media {
+  position: relative;
+}
+
+.mdl-card__media img{
+  width: 100%;
+  height: auto;
+}
+
+.mdl-card__actions{
+  padding: 4px;
+}
+
+.mdl-card__title-text {
+ width: 80%;
+ word-break: break-all;
+}
+
+.mdl-card__actions .material-icons-outlined {
+  font-size: 18px;
+}
+
+.mdl-button--icon .material-icons-outlined {
+  position: absolute;
+  width: 24px;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-12px,-12px);
+  transform: translate(-12px,-12px);
+  line-height: 24px;
+}
+
+.mdl-layout__header {
+  background-color: var(--global-white-color);
+}
+
+.material-icons, .material-icons-outlined {
+  color: var(--global-dark-grey-color);
+}

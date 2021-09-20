@@ -1,6 +1,7 @@
-from flask import Blueprint, request, render_template, redirect
+from flask import Blueprint, request, render_template, current_app
 from flask_login import current_user
 from monolithic.forms.data_form import FileUploadForm
+import json
 
 from monolithic.tasks.data import analyze_and_report_package_data
 
@@ -13,8 +14,9 @@ def file():
     if request.method == 'GET':
         return render_template('index.html', form=form)
 
-    else:        
+    else:       
         if form.validate_on_submit():
+            user_email = form.user_email.data
             try:
                 package_info = dict()
                 SPLIT_WORD = "=="
@@ -26,6 +28,11 @@ def file():
                 print(e)
 
             else:
-                analyze_and_report_package_data.delay(package_info, form.user_email.data or current_user.user_email)
 
-        return redirect(request.path)
+                analyze_and_report_package_data.delay(package_info, user_email)
+                
+            return json.dumps({"message": user_email + "로 패키지 리포트가 전송되었습니다.\n확인해주세요!!"}), 200
+        else:
+            current_app.logger.critical(form.errors)
+            return json.dumps({"message": json.dumps(form.errors)}), 403
+

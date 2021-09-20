@@ -21,7 +21,7 @@ class UpdateTracker:
         self.error = dict()
         self.cache_miss_packages = dict()
         self.user_email=user_email
-        self.redis = redis.StrictRedis(host='localhost', port=6379, db=0)
+        self.redis = redis.StrictRedis(host=["REDIS_HOST"], port=6379, db=0)
     
 
     def report_package_info(self):
