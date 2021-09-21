@@ -54,7 +54,7 @@
                 <h4 style="display: inline;"><a href="">Update Tracker</a></h4>
                 {% block link %}
                   {% if not current_user.is_authenticated %}
-                    <a href="{{ url_for('auth.register') }}" class="mdl-button mdl-button--raised mdl-button--colored" style="float: right;">회원가입</a>
+                    <a href="{{ url_for('auth.register') }}" class="mdl-button mdl-button--raised mdl-button--colored" style="float: right; margin-left: 20px;">회원가입</a>
                     <a href="{{ url_for('auth.login') }}" class="mdl-button mdl-button--raised mdl-button--colored" style="float: right;">로그인</a>
                   {% else %}
                     <a href="{{ url_for('auth.logout') }}" class="mdl-button mdl-button--raised mdl-button--colored" style="float: right;">로그아웃</a>

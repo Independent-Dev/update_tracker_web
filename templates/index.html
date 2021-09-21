@@ -39,12 +39,32 @@
             }
             })
         });
+
+        $('#cache_update_button').click(function(){
+            $.post("{{ url_for('data.redis_cache_update') }}", function(response){
+                response_json = $.parseJSON(response)
+                alert(response_json.message)
+            }).fail(function(response){
+                response_json = $.parseJSON(response.responseText)
+                alert(response_json.message)
+            })
+        })
     });
 </script>
 
 {% endblock %}
 
 {% block card_title %}Main{% endblock %}
+
+{% block link %}
+    {% if not current_user.is_authenticated %}
+        <a href="{{ url_for('auth.register') }}" class="mdl-button mdl-button--raised mdl-button--colored" style="float: right; margin-left: 20px;">회원가입</a>
+        <a href="{{ url_for('auth.login') }}" class="mdl-button mdl-button--raised mdl-button--colored" style="float: right;">로그인</a>
+    {% else %}
+        <button id="cache_update_button" title="Redis에 저장된 패키지 데이터 갱신" class="mdl-button mdl-button--raised mdl-button--colored" style="float: right; margin-left: 20px;">데이터 캐시 갱신</button>
+        <a href="{{ url_for('auth.logout') }}" class="mdl-button mdl-button--raised mdl-button--colored" style="float: right;">로그아웃</a>
+    {% endif %}
+{% endblock %}
 
 {% block body %}
 <form method="post" id="upload_form" enctype="multipart/form-data">

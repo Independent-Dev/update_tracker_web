@@ -3,7 +3,7 @@ from flask_login import current_user
 from monolithic.forms.data_form import FileUploadForm
 import json
 
-from monolithic.tasks.data import analyze_and_report_package_data
+from monolithic.tasks.data import analyze_and_report_package_data, update_redis_cache
 
 NAME = 'data'
 bp = Blueprint(NAME, __name__, url_prefix=f'/{NAME}')
@@ -36,4 +36,16 @@ def file():
         else:
             current_app.logger.critical(form.errors)
             return json.dumps({"message": json.dumps(form.errors)}), 403
+
+@bp.route('/redis/cache/', methods=["POST"])
+def redis_cache_update():
+    try:
+        # TODO 로그인 하지 않은 유저에 대한 예외처리 필요.
+        update_redis_cache()
+        
+    except Exception as e:
+        current_app.logger.critical(f"redis_cache_update error: {e}")
+        return json.dumps({"message": "캐시 갱신 과정에서 에러가 발생하였습니다. 관리자에게 문의해주세요!"}), 403
+
+    return json.dumps({"message": "캐시가 정상적으로 갱신되었습니다!"}), 200 
 
