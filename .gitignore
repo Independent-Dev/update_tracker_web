@@ -36,6 +36,7 @@ Temporary Items
 ### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
+.dbdata
 *.py[cod]
 *$py.class
 
