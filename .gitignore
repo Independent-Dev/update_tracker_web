@@ -1,9 +1,6 @@
 # Created by https://www.toptal.com/developers/gitignore/api/python,visualstudiocode,macos
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,visualstudiocode,macos
 
-# config 파일
-private.py
-
 ### macOS ###
 # General
 .DS_Store
@@ -198,5 +195,12 @@ env.sh
 # db
 app.db
 app.sqbpro
+celerybeat-schedule.db
+
+# config 파일
+private.py
+
+# migrations
+migrations/
 
 # End of https://www.toptal.com/developers/gitignore/api/python,visualstudiocode,macos

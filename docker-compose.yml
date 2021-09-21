@@ -1,0 +1,41 @@
+# aws에 옮겨놓은 버전
+version: "3.2"
+
+services:
+  flask:
+    # image: juj08217/web_server:latest
+    build:
+      context: ./monolithic
+      dockerfile: Dockerfile
+    environment: 
+      - FLASK_ENV=production
+    depends_on:
+      - db-server
+      - redis-server
+    # volumes: 
+    #   - /monolithic:/monolithic
+    # ports:
+    #   - '5000:5000'
+    expose: 
+      - 8080
+    command: uwsgi app.ini
+  db-server:
+    image: mysql:5.7
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=monolithic
+    ports:
+      - '3306:3306'
+
+  redis-server:
+    image: redis
+    ports: 
+      - '6379:6379'
+  
+  nginx:
+    build: ./nginx
+    ports: 
+      - "80:80"
+    depends_on:
+      - flask
