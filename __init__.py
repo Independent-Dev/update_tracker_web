@@ -20,14 +20,15 @@ celery = Celery(__name__)
 def create_app(config=None):
     app = Flask(__name__)
     
-    from monolithic.configs import ProductionConfig, TestConfig
+    from monolithic.config import configs, private
     
     if os.environ.get('FLASK_ENV', '') == "development":
-        config = TestConfig()
+        config = configs.TestConfig()
     else:
-        config = ProductionConfig()
+        config = configs.ProductionConfig()
 
     app.config.from_object(config)
+    app.config.from_object(private.PrivateConfig())
 
 
     """ === Database Init === """

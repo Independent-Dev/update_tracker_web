@@ -2,7 +2,7 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,visualstudiocode,macos
 
 # config 파일
-configs.py
+private.py
 
 ### macOS ###
 # General
