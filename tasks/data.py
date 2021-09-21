@@ -21,14 +21,11 @@ def update_redis_cache():
         try:
             redis.fetch_updated_package_data(package_name)
         except Exception as e:
-            current_app.logger.debug(f"error: {e}")
+            current_app.logger.debug(f"package_name: {package_name}, error: {e}")
 
     current_app.logger.info("fetch_updated_package_data 완료")
     
-    if redis.package_data:
-        current_app.logger.info("package data update 시작")
-        current_app.logger.info(f"업데이트 필요 패키지: {redis.package_data.keys()}")
-        redis.conn.mset(redis.package_data)
+    redis.cache_update()
     
     current_app.logger.info("update_redis_cache 메소드 완료")
     

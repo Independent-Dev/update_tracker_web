@@ -18,6 +18,7 @@ def file():
         if form.validate_on_submit():
             user_email = form.user_email.data
             try:
+                # TODO 이것도 update tracker 안에 넣어야 하는 것 아닌가. 
                 package_info = dict()
                 SPLIT_WORD = "=="
                 data_list = form.file.data.read().decode().strip().split("\n")
@@ -28,8 +29,8 @@ def file():
                 print(e)
 
             else:
-
-                analyze_and_report_package_data.delay(package_info, user_email)
+                # TODO 이것도 try문 안에 넣어야 하는 것 아닌가...
+                analyze_and_report_package_data.delay(package_info, user_email) 
                 
             return json.dumps({"message": user_email + "로 패키지 리포트가 전송되었습니다.\n확인해주세요!!"}), 200
         else:
