@@ -8,7 +8,7 @@ from monolithic.utils.common import from_utc_to_local
 class Level(IntEnum):
     MAJOR = 1
     MINOR = 2
-    MICRO = 3
+    PATCH = 3
 
 PackageData = namedtuple(
     'PackageData', [
@@ -67,10 +67,12 @@ class UpdateTracker:
             if package_data.current_version != package_data.updated_version:  
                 current_package_version = package_data.current_version.split(".")
                 updated_package_version = package_data.updated_version.split(".")
-                for i in range(min(len(self.result), len(current_package_version))):
+                for i in range(min(len(self.result), len(current_package_version), len(updated_package_version))):
                     if current_package_version[i] != updated_package_version[i]:
                         self.result[i][package_name] = package_data
                         break
+                else:
+                    self.result[-1][package_name] = package_data
     
     def make_report(self):
         context = dict(
