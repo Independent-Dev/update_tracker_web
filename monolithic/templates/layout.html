@@ -51,7 +51,7 @@
           <div class="mdl-card-wide mdl-card mdl-shadow--2dp">
             <div>
               <div style="text-align: center; display: block;">
-                <h4 style="display: inline;"><a href="">Update Tracker</a></h4>
+                <h4 style="display: inline;"><a href="{{ url_for('index') }}">Update Tracker</a></h4>
                 {% block link %}
                   {% if not current_user.is_authenticated %}
                     <a href="{{ url_for('auth.register') }}" class="mdl-button mdl-button--raised mdl-button--colored" style="float: right; margin-left: 20px;">회원가입</a>
@@ -78,14 +78,14 @@
           <div class="mdl-card-wide mdl-shadow--2dp">
             <div class="mdl-grid">
               <span class="mdl-cell mdl-cell--2-col"></span>
-              <a href="#" class="mdl-cell mdl-cell--2-col mdl-button mdl-button--raised mdl-button--colored mdl-js-button mdl-color-text--white" style="background-color: FFAB40;">
+              <a href="{{ url_for('intro') }}" class="mdl-cell mdl-cell--2-col mdl-button mdl-button--raised mdl-button--colored mdl-js-button mdl-color-text--white" style="background-color: FFAB40;">
                 소개
               </a>
               <a href="https://github.com/Independent-Dev/update_tracker_web" class="mdl-cell mdl-cell--2-col mdl-button mdl-button--raised mdl-button--colored mdl-js-button mdl-color-text--white" style="background-color: FFAB40;">
-                source code
+                소스코드
               </a>
               <a href="https://pypi.org/project/update-tracker/" class="mdl-cell mdl-cell--2-col mdl-button mdl-button--raised mdl-button--colored mdl-js-button mdl-color-text--white" style="background-color: FFAB40;">
-                CLI Package
+                CLI 프로그램
               </a>
               <a href="https://velog.io/@juju08217/" class="mdl-cell mdl-cell--2-col mdl-button mdl-button--raised mdl-button--colored mdl-js-button mdl-color-text--white" style="background-color: FFAB40;">
                 Blog
