@@ -17,6 +17,7 @@ class Config:
 
     # celery
     PYPI_SEARCH_URL_FORMAT = "https://pypi.python.org/pypi/{}/json"
+    REDIS_PACKAGE_NAME_PREFIX = "___"
 
 class ProductionConfig(Config):
     SECRET_KEY = '3961fe7dd81b4dae8970b81ed3f47d30'

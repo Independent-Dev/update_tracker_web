@@ -24,7 +24,6 @@ def update_redis_cache():
             current_app.logger.debug(f"package_name: {package_name}, error: {e}")
 
     current_app.logger.info("fetch_updated_package_data 완료")
-    
     redis.cache_update()
     
     current_app.logger.info("update_redis_cache 메소드 완료")

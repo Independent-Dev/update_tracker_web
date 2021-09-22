@@ -47,7 +47,7 @@ class UpdateTracker:
 
 
     def fetch_data(self, package_name, package_data):
-        fetched_data = self.redis.conn.get(package_name)
+        fetched_data = self.redis.conn.get(current_app.config["REDIS_PACKAGE_NAME_PREFIX"] + package_name)
 
         if not fetched_data:
             current_app.logger.info(f"{package_name} not in redis")
@@ -96,8 +96,8 @@ class Redis:
         self.package_data = dict()
     
     def get_keys(self):
-        package_name_list = self.conn.keys("*")
-        return [package_name.decode() for package_name in package_name_list]
+        package_name_list = self.conn.keys(f"[{current_app.config['REDIS_PACKAGE_NAME_PREFIX']}]*") 
+        return [package_name.decode().strip(current_app.config["REDIS_PACKAGE_NAME_PREFIX"]) for package_name in package_name_list]
     
     def fetch_updated_package_data(self, package_name):
         result = requests.get(current_app.config['PYPI_SEARCH_URL_FORMAT'].format(package_name))
@@ -112,7 +112,7 @@ class Redis:
                 upload_time = from_utc_to_local(upload_time)
             )
 
-            self.package_data[package_name] = json.dumps(fetched_data, ensure_ascii=False).encode('utf-8')
+            self.package_data[current_app.config["REDIS_PACKAGE_NAME_PREFIX"] + package_name] = json.dumps(fetched_data, ensure_ascii=False).encode('utf-8')
             
             return fetched_data
         else:
