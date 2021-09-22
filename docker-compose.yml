@@ -3,19 +3,15 @@ version: "3.2"
 
 services:
   flask:
-    # image: juj08217/web_server:latest
     build:
       context: ./monolithic
       dockerfile: Dockerfile
     environment: 
       - FLASK_ENV=production
+      - FLASK_APP=monolithic
     depends_on:
       - db-server
       - redis-server
-    # volumes: 
-    #   - /monolithic:/monolithic
-    # ports:
-    #   - '5000:5000'
     expose: 
       - 8080
     command: uwsgi app.ini
