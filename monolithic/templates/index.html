@@ -47,6 +47,7 @@
             }).fail(function(response){
                 response_json = $.parseJSON(response.responseText)
                 alert(response_json.message)
+                location.reload()
             })
         })
     });

@@ -39,6 +39,8 @@ def file():
 
 @bp.route('/redis/cache/', methods=["POST"])
 def redis_cache_update():
+    if not current_user.is_authenticated:
+        return json.dumps({"message": "로그인하지 않은 사용자는 캐시 갱신 기능을 이용할 수 없습니다!"}), 401
     try:
         # TODO 로그인 하지 않은 유저에 대한 예외처리 필요.
         update_redis_cache()
