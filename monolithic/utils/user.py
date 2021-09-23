@@ -2,6 +2,7 @@ from flask import current_app, render_template, url_for
 from werkzeug.utils import redirect
 from flask_mail import Message
 from flask_login import current_user
+from datetime import datetime, timedelta
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 
 from hashlib import sha1
@@ -62,3 +63,8 @@ def confirm_email_token_status(token):
     expired = expired and (user is not None)  # TODO 이게 꼭 필요한가...
 
     return expired, invalid, user
+
+
+def is_redis_cache_update_possible():
+    return current_user.last_redis_cache_update_at and \
+        datetime.now() - current_user.last_redis_cache_update_at < timedelta(hours=current_app.config['REDIS_CACHE_UPDATE_LIMIT_TIME'])
