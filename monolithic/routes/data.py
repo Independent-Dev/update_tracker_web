@@ -1,7 +1,9 @@
 from flask import Blueprint, request, render_template, current_app
 from flask_login import current_user
 from monolithic.forms.data_form import FileUploadForm
+from monolithic import db
 import json
+from datetime import datetime, timedelta
 
 from monolithic.tasks.data import analyze_and_report_package_data, update_redis_cache
 
@@ -42,9 +44,15 @@ def redis_cache_update():
     if not current_user.is_authenticated:
         return json.dumps({"message": "로그인하지 않은 사용자는 캐시 갱신 기능을 이용할 수 없습니다!"}), 401
     try:
-        # TODO 로그인 하지 않은 유저에 대한 예외처리 필요.
+        if datetime.now() - current_user.last_redis_cache_update_at < timedelta(hours=current_app.config['REDIS_CACHE_UPDATE_LIMIT_TIME']):
+            return json.dumps({"message": f"캐시 갱신은 {current_app.config['REDIS_CACHE_UPDATE_LIMIT_TIME']}시간에 한 번씩만 할 수 있습니다."}), 401
+        
         update_redis_cache()
         
+        current_user.last_redis_cache_update_at = datetime.now()
+
+        db.session.commit()
+
     except Exception as e:
         current_app.logger.critical(f"redis_cache_update error: {e}")
         return json.dumps({"message": "캐시 갱신 과정에서 에러가 발생하였습니다. 관리자에게 문의해주세요!"}), 403
