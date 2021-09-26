@@ -92,7 +92,7 @@ class UpdateTracker:
 
 class Redis:
     def __init__(self) -> None:
-        self.conn = redis.StrictRedis(host=current_app.config["REDIS_HOST"], port=6379, db=0)
+        self.conn = redis.StrictRedis(host=current_app.config["REDIS_HOST"], port=6379, db=0, password=current_app.config["REDIS_PASSWORD"])
         self.package_data = dict()
     
     def get_keys(self):

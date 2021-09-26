@@ -23,12 +23,14 @@ class Config:
 
 class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:password@db-server/monolithic'
-    CELERY_BROKER_URL = 'redis://redis-server:6379'
+    CELERY_BROKER_URL = 'redis://user:updatetracker@redis-server:6379'
     REDIS_HOST = 'redis-server'
+    REDIS_PASSWORD = 'updatetracker'
 
-    
+
 class TestConfig(Config):
     SQLALCHEMY_DATABASE_URI = 'sqlite:///app.db'
     CELERY_BROKER_URL = 'redis://localhost:6379'
     REDIS_HOST = 'localhost'
+    REDIS_PASSWORD = None
 

@@ -25,7 +25,7 @@ services:
       - '3306:3306'
 
   redis-server:
-    image: redis
+    build: ./redis
     ports: 
       - '6379:6379'
   
