@@ -1,7 +1,5 @@
-from flask import current_app, render_template
-from flask_mail import Message
-from monolithic import mail, celery
-from monolithic.tasks.mail import send_email_celery
+from flask import current_app
+from monolithic import celery
 from monolithic.utils.data import UpdateTracker, Redis
 
 
@@ -9,6 +7,7 @@ from monolithic.utils.data import UpdateTracker, Redis
 def analyze_and_report_package_data(package_info, user_email):
     update_tracker = UpdateTracker(package_info, user_email)
     update_tracker.report_package_info()
+
 
 @celery.task
 def update_redis_cache():
@@ -25,6 +24,5 @@ def update_redis_cache():
 
     current_app.logger.info("fetch_updated_package_data 완료")
     redis.cache_update()
-    
+
     current_app.logger.info("update_redis_cache 메소드 완료")
-    

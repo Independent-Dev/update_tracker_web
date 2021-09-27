@@ -9,7 +9,7 @@ class Config:
     POSSIBLE_FILE_EXTENSION = ["txt"]
 
     REDIS_CACHE_UPDATE_LIMIT_TIME = 2
-    
+
     # Flask-Mail
     MAIL_SERVER = 'smtp.gmail.com'
     MAIL_PORT = 587
@@ -20,6 +20,7 @@ class Config:
     # celery
     PYPI_SEARCH_URL_FORMAT = "https://pypi.python.org/pypi/{}/json"
     REDIS_PACKAGE_NAME_PREFIX = "___"
+
 
 class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:password@db-server/monolithic'
@@ -33,4 +34,3 @@ class TestConfig(Config):
     CELERY_BROKER_URL = 'redis://localhost:6379'
     REDIS_HOST = 'localhost'
     REDIS_PASSWORD = None
-

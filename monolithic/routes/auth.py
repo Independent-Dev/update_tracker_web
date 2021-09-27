@@ -1,9 +1,6 @@
-from hashlib import sha1
-
-from flask import Blueprint, render_template, url_for, redirect, request, session, flash, g, current_app
+from flask import Blueprint, render_template, url_for, redirect, request, flash
 from flask_login import current_user, login_user, logout_user
 from werkzeug import security
-from itsdangerous import URLSafeTimedSerializer
 
 from monolithic import db
 from monolithic.models.users import User
@@ -38,10 +35,12 @@ def login():
 
     return render_template(f'{NAME}/login.html', form=form)
 
+
 @bp.route("/logout/")
 def logout():
     logout_user()
     return redirect(url_for("index"))
+
 
 @bp.route('/register/', methods=['GET', 'POST'])
 def register():
@@ -55,7 +54,7 @@ def register():
         if user:
             flash('User ID is already exsits.')
             return redirect(request.path)
-        
+
         user = User(
             user_email=form.user_email.data,
             password=security.generate_password_hash(form.password.data)
@@ -84,7 +83,7 @@ def email_auth_completed_page():
         return redirect(url_for("data.file"))
 
     token = request.args.get("token", None)
-    user_email=request.args.get('email')
+    user_email = request.args.get('email')
     user = User.query.filter_by(user_email=user_email).first()
 
     if user and user.active:
@@ -104,6 +103,5 @@ def email_auth_completed_page():
         user.active = True
         db.session.commit()
         login_user(user)
-        
 
     return render_template(f"{NAME}/email_auth_completed_page.html", user_email=request.args.get('email'))

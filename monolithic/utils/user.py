@@ -1,20 +1,19 @@
-from flask import current_app, render_template, url_for
-from werkzeug.utils import redirect
-from flask_mail import Message
-from flask_login import current_user
 from datetime import datetime, timedelta
-from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
-
 from hashlib import sha1
 
+from flask import current_app, url_for
+from flask_login import current_user
+from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 
-from monolithic import login_manager, mail
+from monolithic import login_manager
 from monolithic.models.users import User
 from monolithic.tasks import mail
+
 
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
 
 def send_auth_email(user):
     confirmation_link = generate_confirmation_link(
@@ -30,9 +29,11 @@ def send_auth_email(user):
         **context
     )
 
+
 def generate_confirmation_link(user, url_txt):
     token = generate_confirmation_token(user)
     return url_for(url_txt, token=token, email=user.user_email, _external=True)
+
 
 def generate_confirmation_token(user):
     """Generates a unique confirmation token for the specified user.
@@ -42,6 +43,7 @@ def generate_confirmation_token(user):
     data = [str(user.id), sha1(user.user_email.encode('utf-8')).hexdigest()]
     secret_key = current_app.config.get('SECRET_KEY')
     return URLSafeTimedSerializer(secret_key=secret_key, salt=None).dumps(data)
+
 
 def confirm_email_token_status(token):
     serializer = URLSafeTimedSerializer(secret_key=current_app.config.get('SECRET_KEY'), salt=None)
