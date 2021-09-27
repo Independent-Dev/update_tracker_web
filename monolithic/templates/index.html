@@ -80,12 +80,12 @@
             {{ form.user_email(class='mdl-textfield__input', minlength=4, maxlength=20, autocomplete='off', required=true, type='hidden', value=current_user.user_email) }}
         {% endif %}
         <div style="width:100%;" class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-        {{ form.file(class='mdl-textfield__input') }}
+        {{ form.file(class='mdl-textfield__input', title="requirement.txt를 업로드해주세요!") }}
         </div>
     </div>
     <div class="mdl-card__actions mdl-card--border">
         <div class="mdl-grid">
-            <input type="submit" value="upload" class="mdl-cell mdl-cell--12-col mdl-button mdl-button--raised mdl-button--colored mdl-js-button mdl-js-ripple-effect mdl-color-text--white" style="background-color: FFAB40;"></input>
+            <input type="submit" value="requirements.txt 파일 upload" class="mdl-cell mdl-cell--12-col mdl-button mdl-button--raised mdl-button--colored mdl-js-button mdl-js-ripple-effect mdl-color-text--white" style="background-color: FFAB40;"></input>
         </div>
     </div>
 </form>
